@@ -546,7 +546,7 @@ function makeCard(m,sb,name,inPage){
   return fonts.then(function(){
     // 좌표는 1080×1500 기준으로 그리고, 실제 이미지 크기는 화면에 보이는 폭의 정수배(2배 이상)로 만들어
     // 어떤 모니터에서도 축소 비율이 깔끔하게 떨어지도록 합니다 (계단 현상 방지)
-    var W=1080,H=1500,split=1000,pad=84,inner=W-pad*2,R=56;
+    var W=1080,H=1500,split=1500,pad=84,inner=W-pad*2,R=56;
     // 화면에 실제로 보이는 폭을 CSS와 같은 식으로 어림 계산 (카드 화면은 높이에도 제한을 받음)
     var vw=window.innerWidth||440, vh=window.innerHeight||800;
     var cssW=inPage?Math.min(440,vw-32):Math.max(240,Math.min(440,vw-32,(vh-320)*.72));
@@ -557,34 +557,23 @@ function makeCard(m,sb,name,inPage){
     var D='"Helvetica Neue",Helvetica,Arial,"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif', B=D;
     x.save(); rr(x,0,0,W,H,R); x.clip();            // 모서리 바깥은 투명하게 유지
     x.fillStyle=m.hex; x.fillRect(0,0,W,split);
-    x.fillStyle=sb.hex; x.fillRect(0,split,W,H-split);
-    if(m.white||sb.white){ x.strokeStyle="#B9C0CC"; x.lineWidth=4; x.beginPath(); x.moveTo(0,split); x.lineTo(W,split); x.stroke(); }
     x.textBaseline="alphabetic"; x.textAlign="left";
     var LS=function(px){ if("letterSpacing" in x) x.letterSpacing=px+"px"; };
     var label=function(t,X,Y,al){ LS(3); x.font="700 26px "+D; x.globalAlpha=al; x.fillText(t,X,Y); x.globalAlpha=1; };
     var rule=function(Y,col){ x.save(); x.globalAlpha=.28; x.strokeStyle=col; x.lineWidth=2; x.beginPath(); x.moveTo(pad,Y); x.lineTo(W-pad,Y); x.stroke(); x.restore(); };
-    // ── 메인 컬러 영역: 헤더 / 이름 / MAIN / 성향 ──
+    // ── 카드는 메인 컬러 한 가지만: 위(헤더·이름·유형·컬러), 가운데(상징 자리), 아래(성향) ──
     x.fillStyle=m.ink;
     label("THE V AWARDS 2026",pad,124,.85);
     x.textAlign="right"; label("FIND YOUR V",W-pad,124,.85); x.textAlign="left";
     rule(168,m.ink);
     LS(-.6); fitFont(x,name+"님의 V",inner,46,28,"500",B); x.fillText(name+"님의 V",pad,262);
-    label("MAIN",pad,412,.75);
-    LS(-4); fitFont(x,m.k,inner,150,80,"700",D); x.fillText(m.k,pad,566);
-    LS(4); x.font="700 36px "+D; x.fillText(m.c,pad,634);
+    LS(-5); fitFont(x,m.k,inner,190,90,"700",D); x.fillText(m.k,pad,470);
+    LS(5); x.font="700 40px "+D; x.fillText(m.c,pad,548);
     rule(split-212,m.ink);
     label("PERSONALITY",pad,split-150,.75);
-    LS(-.6); fitFont(x,m.title,inner,48,28,"700",B); x.fillText(m.title,pad,split-84);
-    // ── 서브 컬러 영역: SUB / 유형 / 컬러·성향 ──
-    x.fillStyle=sb.ink;
-    label("SUB",pad,split+100,.75);
-    LS(-3); fitFont(x,sb.k,inner,64,40,"700",D); x.fillText(sb.k,pad,split+188);
-    LS(4); x.font="700 32px "+D; x.fillText(sb.c,pad,split+246);
-    rule(split+292,sb.ink);
-    label("PERSONALITY",pad,split+346,.75);
-    LS(-.6); fitFont(x,sb.title,inner,40,26,"700",B); x.fillText(sb.title,pad,split+410);
+    LS(-.6); fitFont(x,m.title,inner,52,28,"700",B); x.fillText(m.title,pad,split-84);
     LS(0); x.restore();
-    if(m.white||sb.white){ x.strokeStyle="#B9C0CC"; x.lineWidth=4; rr(x,2,2,W-4,H-4,R-2); x.stroke(); }
+    if(m.white){ x.strokeStyle="#B9C0CC"; x.lineWidth=4; rr(x,2,2,W-4,H-4,R-2); x.stroke(); }
     return c.toDataURL("image/png");
   });
 }
@@ -592,8 +581,7 @@ function makeCard(m,sb,name,inPage){
 function heroFor(m,sb){
   return '<div role="heading" aria-level="1" class="hero'+((m.white||sb.white)?' sepw':'')+'">'+
     '<div class="hero-main" style="--c:'+m.hex+';--ink:'+m.ink+'"><div class="hero-top"><span>THE V AWARDS 2026</span><span>FIND YOUR V</span></div>'+
-    '<p class="hero-nm">'+esc(state.name)+'님의 V</p><p class="hero-lb">MAIN</p><p class="hero-tn">'+m.k+'</p><p class="hero-cn">'+m.c+'</p><p class="hero-lb" style="margin-top:56px">PERSONALITY</p><p class="hero-tt">'+m.title+'</p></div>'+
-    '<div class="hero-sub" style="--c2:'+sb.hex+';--ink2:'+sb.ink+'"><small>SUB</small><b>'+sb.k+'</b><em>'+sb.c+'</em><small class="pl">PERSONALITY</small><span>'+sb.title+'</span></div></div>'+
+    '<p class="hero-nm">'+esc(state.name)+'님의 V</p><p class="hero-tn" style="margin-top:20px">'+m.k+'</p><p class="hero-cn">'+m.c+'</p><p class="hero-lb" style="margin-top:56px">PERSONALITY</p><p class="hero-tt">'+m.title+'</p></div></div>'+
     '<p class="shot">이 카드를 캡처해 공유해 보세요.</p>';
 }
 
