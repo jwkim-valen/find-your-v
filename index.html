@@ -375,15 +375,17 @@ function cs(t){ return "--c:"+t.hex+";--ink:"+t.ink; }
 function pct(n,d){ return Math.round(n/d*100); }
 
 /* ───────── 점수 계산 ───────── */
+// 동점일 때 쓰는 고정 순서값: 같은 답이면 항상 같은 값이고, 문항 순서나 유형 순서에 치우치지 않습니다.
+function hashStr(str){ var h=2166136261; for(var i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
 function compute(){
   var counts = {}; TYPES.forEach(function(t){counts[t.k]=0;});
   state.answers.forEach(function(a,qi){ counts[QS[qi].o[a].v]++; });
-  var first = {}; state.answers.forEach(function(a,qi){ var k=QS[qi].o[a].v; if(first[k]===undefined) first[k]=qi; });
-  var rows = TYPES.map(function(t){ return {t:t,n:counts[t.k],d:APPEAR[t.k],f:first[t.k]===undefined?99:first[t.k]}; });
+  var key = state.answers.join(",");
+  var rows = TYPES.map(function(t){ return {t:t,n:counts[t.k],d:APPEAR[t.k],h:hashStr(key+"|"+t.k)}; });
   // 분수 교차곱으로 비교 (부동소수점 오차 없음). 동률은 표시 순서만 고정하고 우열은 두지 않음.
   rows.sort(function(a,b){ var x=a.n*b.d, y=b.n*a.d; if(x!==y) return y-x;            // 1순위: 선택 비율
     if(a.n!==b.n) return b.n-a.n;     // 동점: 실제 선택 횟수가 많은 쪽
-    if(a.f!==b.f) return a.f-b.f;     // 그래도 같으면 먼저 선택한 쪽
+    if(a.h!==b.h) return a.h-b.h;     // 그래도 같으면 답 조합으로 정해지는 고정 순서 (치우침 없음)
     return a.t.order-b.t.order; });
   var groups = [];
   rows.forEach(function(r,i){
