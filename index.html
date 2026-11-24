@@ -709,8 +709,8 @@ function submitResult(res){
   var ep=CONFIG.sheetEndpoint; if(!ep) return;
   try{
     var m=res.rows[0].t, sb=res.rows[1].t;
-    // 시트에는 꼭 필요한 항목만 보냅니다 (제출ID, 이름, 메인/서브 유형과 컬러)
-    var payload={ id:state.sessionId, name:state.name, main:m.k, mainColor:m.c, sub:sb.k, subColor:sb.c };
+    // 시트에는 꼭 필요한 항목만 보냅니다 (제출ID, 이름, 메인/서브 유형과 컬러, 결과 링크)
+    var payload={ id:state.sessionId, name:state.name, main:m.k, mainColor:m.c, sub:sb.k, subColor:sb.c, link:baseUrl()+"#"+shareHash(m,sb,state.name) };
     fetch(ep,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload),keepalive:true}).catch(function(){});
   }catch(e){}
 }
